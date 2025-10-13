@@ -1,0 +1,31 @@
+package com.backend.jibli.order;
+
+import com.backend.jibli.product.Product;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "order_items")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrderItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer orderItemId;
+
+    @ManyToOne
+    @JoinColumn(name = "orderId")
+    private Order order;
+
+    @ManyToOne
+    @JoinColumn(name = "productId")
+    private Product product;
+
+    private Integer quantity;
+    private Double unitPrice;
+    private Double totalPrice;
+
+}
