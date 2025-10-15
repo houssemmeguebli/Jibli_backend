@@ -60,4 +60,12 @@ public class CartController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<CartDTO> getCartByUserId(@PathVariable Integer userId) {
+        return cartService.findByUserUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

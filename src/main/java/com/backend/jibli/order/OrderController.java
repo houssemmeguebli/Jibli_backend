@@ -70,4 +70,21 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable Integer userId) {
+        List<OrderDTO> orders = orderService.findOrderByUserId(userId);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/orderProducs")
+    public ResponseEntity<List<OrderDTO>> findAllWithProducts() {
+        List<OrderDTO> orders = orderService.findAllWithProducts();
+        return ResponseEntity.ok(orders);
+    }
+    @GetMapping("/orderProducts/{orderId}")
+    public  ResponseEntity<List<OrderDTO>> findByIdWithProducts(@PathVariable Integer orderId) {
+        List<OrderDTO> orders = orderService.findByIdWithProducts(orderId);
+        return ResponseEntity.ok(orders);
+
+    }
 }

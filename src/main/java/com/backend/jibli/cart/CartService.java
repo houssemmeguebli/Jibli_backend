@@ -19,7 +19,9 @@ public class CartService implements ICartService {
     private final IProductRepository productRepository;
 
     @Autowired
-    public CartService(ICartRepository cartRepository, IUserRepository userRepository, IProductRepository productRepository) {
+    public CartService(ICartRepository cartRepository,
+                       IUserRepository userRepository,
+                       IProductRepository productRepository) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
@@ -28,14 +30,14 @@ public class CartService implements ICartService {
     @Override
     public List<CartDTO> getAllCarts() {
         return cartRepository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(this::mapCartToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<CartDTO> getCartById(Integer id) {
         return cartRepository.findById(id)
-                .map(this::mapToDTO);
+                .map(this::mapCartToDTO);
     }
 
     @Override
@@ -43,6 +45,7 @@ public class CartService implements ICartService {
         if (dto.getUserId() == null) {
             throw new IllegalArgumentException("User ID is required");
         }
+
         if (dto.getCartItems() != null) {
             for (CartItemDTO item : dto.getCartItems()) {
                 if (item.getProductId() == null) {
@@ -56,9 +59,10 @@ public class CartService implements ICartService {
                 }
             }
         }
-        Cart cart = mapToEntity(dto);
+
+        Cart cart = mapCartDTOToEntity(dto);
         Cart saved = cartRepository.save(cart);
-        return mapToDTO(saved);
+        return mapCartToDTO(saved);
     }
 
     @Override
@@ -66,6 +70,7 @@ public class CartService implements ICartService {
         if (dto.getUserId() != null && !userRepository.existsById(dto.getUserId())) {
             throw new IllegalArgumentException("User not found");
         }
+
         if (dto.getCartItems() != null) {
             for (CartItemDTO item : dto.getCartItems()) {
                 if (item.getProductId() != null && !productRepository.existsById(item.getProductId())) {
@@ -76,6 +81,7 @@ public class CartService implements ICartService {
                 }
             }
         }
+
         return cartRepository.findById(id)
                 .map(cart -> {
                     if (dto.getUserId() != null) {
@@ -83,6 +89,7 @@ public class CartService implements ICartService {
                         user.setUserId(dto.getUserId());
                         cart.setUser(user);
                     }
+
                     if (dto.getCartItems() != null) {
                         cart.getCartItems().clear();
                         List<CartItem> cartItems = dto.getCartItems().stream()
@@ -98,8 +105,9 @@ public class CartService implements ICartService {
                                 .collect(Collectors.toList());
                         cart.setCartItems(cartItems);
                     }
+
                     Cart updated = cartRepository.save(cart);
-                    return mapToDTO(updated);
+                    return mapCartToDTO(updated);
                 });
     }
 
@@ -112,12 +120,21 @@ public class CartService implements ICartService {
         return false;
     }
 
-    private CartDTO mapToDTO(Cart cart) {
+    @Override
+    public Optional<CartDTO> findByUserUserId(Integer userId) {
+        // If repository returns Optional<Cart>, map it to CartDTO
+        return cartRepository.findByUserUserId(userId)
+                .map(this::mapCartToDTO);
+    }
+
+    // ---------------- Mapping methods ----------------
+
+    private CartDTO mapCartToDTO(Cart cart) {
         List<CartItemDTO> cartItemDTOs = cart.getCartItems() != null
                 ? cart.getCartItems().stream()
                 .map(this::mapCartItemToDTO)
-                .toList()
-                : null;
+                .collect(Collectors.toList())
+                : List.of();
 
         return new CartDTO(
                 cart.getCartId(),
@@ -129,13 +146,15 @@ public class CartService implements ICartService {
         );
     }
 
-    private Cart mapToEntity(CartDTO dto) {
+    private Cart mapCartDTOToEntity(CartDTO dto) {
         Cart cart = new Cart();
+
         if (dto.getUserId() != null) {
             User user = new User();
             user.setUserId(dto.getUserId());
             cart.setUser(user);
         }
+
         if (dto.getCartItems() != null) {
             List<CartItem> cartItems = dto.getCartItems().stream()
                     .map(item -> {
@@ -150,15 +169,17 @@ public class CartService implements ICartService {
                     .collect(Collectors.toList());
             cart.setCartItems(cartItems);
         }
+
         return cart;
     }
 
     private CartItemDTO mapCartItemToDTO(CartItem cartItem) {
-        return new CartItemDTO(
-                cartItem.getCartItemId(),
-                cartItem.getProduct() != null ? cartItem.getProduct().getProductId() : null,
-                cartItem.getQuantity(),
-                cartItem.getProduct()
-        );
+        CartItemDTO dto = new CartItemDTO();
+        dto.setCartItemId(cartItem.getCartItemId());
+        dto.setCartId(cartItem.getCart() != null ? cartItem.getCart().getCartId() : null);
+        dto.setProductId(cartItem.getProduct() != null ? cartItem.getProduct().getProductId() : null);
+        dto.setQuantity(cartItem.getQuantity());
+        dto.setProduct(cartItem.getProduct());
+        return dto;
     }
 }

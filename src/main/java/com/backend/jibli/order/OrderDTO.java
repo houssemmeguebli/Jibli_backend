@@ -13,13 +13,21 @@ import java.util.List;
 public class OrderDTO {
     private Integer orderId;
     private Integer userId;
+    private Integer companyId;
+    private String customerName;
+    private String customerEmail;
+    private String customerAddress;
+    private String customerPhone;
+    private String orderNotes;
+    private Integer totalProducts;
+    private Integer quantity;
+    private Double discount;
     private Double totalAmount;
     private OrderStatus orderStatus;
+    private LocalDateTime orderDate;
+    private LocalDateTime shippedDate;
     private LocalDateTime createdAt;
-    private List<Integer> orderItemIds;
-    private Integer quantity;
     private LocalDateTime lastUpdated;
-
-
+    private List<Integer> orderItemIds;
 
 }

@@ -15,12 +15,15 @@ public class ProductDTO {
     private String productName;
     private String productDescription;
     private Double productPrice;
+    private Double productFinalePrice ;
     private boolean isAvailable;
     private Double discountPercentage = 0.0;
     private Integer categoryId;
+    private  Integer userId;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private List<Integer> attachmentIds;
     private List<Integer> reviewIds;
     private List<Integer> orderItemIds;
+
 }

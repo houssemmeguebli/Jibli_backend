@@ -8,6 +8,8 @@ import com.backend.jibli.category.Category;
 import com.backend.jibli.attachment.Attachment;
 
 
+import com.backend.jibli.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,8 +27,9 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer companyId;
-    private String name;
-    private String description;
+    private String companyName;
+    private String companyDescription;
+    private String companySector;
     private LocalDateTime createdAt ;
     private LocalDateTime lastUpdated ;
 
@@ -45,6 +48,10 @@ public class Company {
     private List<Order> orders;
     @OneToMany(mappedBy="company")
     private List<Cart> carts;
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private User user;
+
     @PrePersist
     public void onCreate() {
         if (this.createdAt == null) {

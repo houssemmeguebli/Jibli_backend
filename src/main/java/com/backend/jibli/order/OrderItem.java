@@ -1,6 +1,7 @@
 package com.backend.jibli.order;
 
 import com.backend.jibli.product.Product;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "orderId")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne

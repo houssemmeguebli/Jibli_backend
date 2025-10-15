@@ -1,6 +1,8 @@
 package com.backend.jibli.cart;
 
 import com.backend.jibli.product.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,12 +21,22 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cartId")
+    @JsonBackReference  // Back reference to prevent circular serialization
     private Cart cart;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "productId")
+    @JsonIgnoreProperties({
+            "hibernateLazyInitializer",
+            "handler",
+            "attachments",
+            "reviews",
+            "orderItems",
+            "cartItems",
+            "user",
+            "company"
+    })
     private Product product;
 
     private Integer quantity;
-
 }

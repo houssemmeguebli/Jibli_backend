@@ -15,6 +15,11 @@ public class CompanyDTO {
     private Integer companyId;
     private String companyName;
     private String companyDescription;
-    private LocalDateTime companyCreatedAt;
-    private List<Integer> userCompanyIds;
+    private String companySector;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastUpdated;
+    private List<Integer> userIds;
+    private String imageUrl;
+    private Double averageRating;
+    private Integer userId;
 }

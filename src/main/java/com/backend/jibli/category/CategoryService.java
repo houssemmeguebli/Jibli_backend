@@ -2,6 +2,7 @@ package com.backend.jibli.category;
 
 import com.backend.jibli.attachment.Attachment;
 import com.backend.jibli.attachment.AttachmentDTO;
+import com.backend.jibli.product.Product;
 import com.backend.jibli.attachment.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,6 +100,21 @@ public class CategoryService implements ICategoryService {
                 .collect(Collectors.toList())
                 : List.of();
 
+        // Get product IDs safely
+        List<Integer> productIds = List.of();
+        try {
+            if (category.getProducts() != null) {
+                productIds = category.getProducts().stream()
+                        .map(Product::getProductId)
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            productIds = List.of();
+        }
+
+        // Get userId from category
+        Integer userId = category.getUser() != null ? category.getUser().getUserId() : null;
+
         return new CategoryDTO(
                 category.getCategoryId(),
                 category.getName(),
@@ -106,7 +122,9 @@ public class CategoryService implements ICategoryService {
                 category.getIconId(),
                 category.getCreatedAt(),
                 category.getLastUpdated(),
-                attachmentIds
+                attachmentIds,
+                productIds,
+                userId
         );
     }
 

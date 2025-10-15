@@ -2,6 +2,8 @@ package com.backend.jibli.cart;
 
 import com.backend.jibli.company.Company;
 import com.backend.jibli.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,13 +24,16 @@ public class Cart {
 
     @ManyToOne
     @JoinColumn(name = "userId")
+    @JsonIgnoreProperties({"carts", "orders", "products", "reviews"})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "companyId")
+    @JsonIgnoreProperties({"carts", "products", "categories"})
     private Company company;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // Manage the reference to prevent circular serialization
     private List<CartItem> cartItems;
 
     private LocalDateTime createdAt;
@@ -46,6 +51,18 @@ public class Cart {
         lastUpdated = LocalDateTime.now();
     }
 
-
-
+    // Calculate total price from cart items
+    public double getTotalPrice() {
+        if (cartItems == null || cartItems.isEmpty()) {
+            return 0.0;
+        }
+        return cartItems.stream()
+                .mapToDouble(item -> {
+                    if (item.getProduct() != null && item.getQuantity() != null) {
+                        return item.getProduct().getProductPrice() * item.getQuantity();
+                    }
+                    return 0.0;
+                })
+                .sum();
+    }
 }

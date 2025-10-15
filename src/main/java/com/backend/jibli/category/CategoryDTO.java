@@ -18,5 +18,8 @@ public class CategoryDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private List<Integer> attachmentIds;
+    private List<Integer> productIds;
+    private Integer userId;
+
 
 }

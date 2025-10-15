@@ -9,4 +9,7 @@ public interface ICartService {
     CartDTO createCart(CartDTO dto);
     Optional<CartDTO> updateCart(Integer id, CartDTO dto);
     boolean deleteCart(Integer id);
+    Optional<CartDTO> findByUserUserId(Integer userId);
+
+
 }

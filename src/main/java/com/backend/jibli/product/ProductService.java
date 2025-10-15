@@ -49,6 +49,14 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public List<ProductDTO> findByUserUserId(Integer userId) {
+        return productRepository.findByUserUserId(userId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public ProductDTO createProduct(ProductDTO dto) {
         if (dto.getProductName() == null || dto.getProductName().isBlank()) {
             throw new IllegalArgumentException("Product name is required");
@@ -128,6 +136,7 @@ public class ProductService implements IProductService {
         return orderItemService.getOrderItemsByProduct(productId);
     }
 
+
     private ProductDTO mapToDTO(Product product) {
         List<Integer> attachmentIds = product.getAttachments() != null
                 ? product.getAttachments().stream()
@@ -149,9 +158,11 @@ public class ProductService implements IProductService {
                 product.getProductName(),
                 product.getProductDescription(),
                 product.getProductPrice(),
+                product.getProductFinalePrice(),
                 product.isAvailable(),
                 product.getDiscountPercentage(),
                 product.getCategory() != null ? product.getCategory().getCategoryId() : null,
+                product.getUser() != null ? product.getUser().getUserId() : null,
                 product.getCreatedAt(),
                 product.getLastUpdated(),
                 attachmentIds,
@@ -165,6 +176,7 @@ public class ProductService implements IProductService {
         product.setProductName(dto.getProductName());
         product.setProductDescription(dto.getProductDescription());
         product.setProductPrice(dto.getProductPrice());
+        product.setProductFinalePrice(dto.getProductFinalePrice());
         if (dto.getCategoryId() != null) {
             Category category = new Category();
             category.setCategoryId(dto.getCategoryId());

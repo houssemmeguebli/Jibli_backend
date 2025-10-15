@@ -7,6 +7,7 @@ import com.backend.jibli.company.UserCompany;
 import com.backend.jibli.order.Order;
 import com.backend.jibli.product.Product;
 import com.backend.jibli.review.Review;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,6 +52,7 @@ public class User {
     private LocalDateTime lastUpdated;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Order> orders;
 
     @OneToMany(mappedBy = "user")

@@ -34,6 +34,12 @@ public class ProductController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ProductDTO>>  findByUserUserId(@PathVariable Integer userId) {
+        List<ProductDTO> products =  productService.findByUserUserId(userId);
+        return ResponseEntity.ok(products);
+    }
+
 
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO dto) {

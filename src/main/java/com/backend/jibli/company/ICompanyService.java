@@ -7,5 +7,7 @@ public interface ICompanyService {
     Optional<CompanyDTO> getCompanyById(Integer id);
     CompanyDTO createCompany(CompanyDTO dto);
     Optional<CompanyDTO> updateCompany(Integer id, CompanyDTO dto);
+    List<CompanyDTO> findByUserUserId(Integer userId);
+
     boolean deleteCompany(Integer id);
 }

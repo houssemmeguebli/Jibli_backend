@@ -1,6 +1,7 @@
 package com.backend.jibli.order;
 import com.backend.jibli.company.Company;
 import com.backend.jibli.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "userId")
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "order")
