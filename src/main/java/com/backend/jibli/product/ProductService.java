@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -143,32 +144,52 @@ public class ProductService implements IProductService {
                 .map(Attachment::getAttachmentId)
                 .collect(Collectors.toList())
                 : List.of();
+
+        // Map full attachment objects including fileName and fileType
+        List<Map<String, Object>> attachments = product.getAttachments() != null
+                ? product.getAttachments().stream()
+                .map(att -> {
+                    Map<String, Object> attachmentMap = new java.util.HashMap<>();
+                    attachmentMap.put("attachmentId", att.getAttachmentId());
+                    attachmentMap.put("fileName", att.getFileName());
+                    attachmentMap.put("fileType", att.getFileType());
+                    attachmentMap.put("entityType", att.getEntityType());
+                    attachmentMap.put("entityId", att.getEntityId());
+                    return attachmentMap;
+                })
+                .collect(Collectors.toList())
+                : List.of();
+
         List<Integer> reviewIds = product.getReviews() != null
                 ? product.getReviews().stream()
                 .map(Review::getReviewId)
                 .collect(Collectors.toList())
                 : List.of();
+
         List<Integer> orderItemIds = product.getOrderItems() != null
                 ? product.getOrderItems().stream()
                 .map(OrderItem::getOrderItemId)
                 .collect(Collectors.toList())
                 : List.of();
-        return new ProductDTO(
-                product.getProductId(),
-                product.getProductName(),
-                product.getProductDescription(),
-                product.getProductPrice(),
-                product.getProductFinalePrice(),
-                product.isAvailable(),
-                product.getDiscountPercentage(),
-                product.getCategory() != null ? product.getCategory().getCategoryId() : null,
-                product.getUser() != null ? product.getUser().getUserId() : null,
-                product.getCreatedAt(),
-                product.getLastUpdated(),
-                attachmentIds,
-                reviewIds,
-                orderItemIds
-        );
+
+        ProductDTO dto = new ProductDTO();
+        dto.setProductId(product.getProductId());
+        dto.setProductName(product.getProductName());
+        dto.setProductDescription(product.getProductDescription());
+        dto.setProductPrice(product.getProductPrice());
+        dto.setProductFinalePrice(product.getProductFinalePrice());
+        dto.setAvailable(product.isAvailable());
+        dto.setDiscountPercentage(product.getDiscountPercentage());
+        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getCategoryId() : null);
+        dto.setUserId(product.getUser() != null ? product.getUser().getUserId() : null);
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setLastUpdated(product.getLastUpdated());
+        dto.setAttachmentIds(attachmentIds);
+        dto.setReviewIds(reviewIds);
+        dto.setOrderItemIds(orderItemIds);
+        dto.setAttachments(attachments);
+
+        return dto;
     }
 
     private Product mapToEntity(ProductDTO dto) {
@@ -182,6 +203,7 @@ public class ProductService implements IProductService {
             category.setCategoryId(dto.getCategoryId());
             product.setCategory(category);
         }
+
         return product;
     }
 }

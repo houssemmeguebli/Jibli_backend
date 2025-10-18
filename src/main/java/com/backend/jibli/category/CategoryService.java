@@ -93,6 +93,14 @@ public class CategoryService implements ICategoryService {
         return attachmentService.getAttachmentsByEntity("CATEGORY", categoryId);
     }
 
+    @Override
+    public List<CategoryDTO> findCategoriesByUserUserId(Integer userId) {
+        return categoryRepository.findCategoriesByUserUserId(userId)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     private CategoryDTO mapToDTO(Category category) {
         List<Integer> attachmentIds = category.getAttachments() != null
                 ? category.getAttachments().stream()

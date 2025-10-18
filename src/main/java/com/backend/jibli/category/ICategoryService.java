@@ -14,4 +14,6 @@ public interface ICategoryService {
     boolean deleteCategory(Integer id);
     AttachmentDTO addAttachment(Integer categoryId, MultipartFile file);
     List<AttachmentDTO> getCategoryAttachments(Integer categoryId);
+    List<CategoryDTO> findCategoriesByUserUserId(Integer userId);
+
 }

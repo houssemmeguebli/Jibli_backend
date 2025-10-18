@@ -24,16 +24,16 @@ public class Cart {
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    @JsonIgnoreProperties({"carts", "orders", "products", "reviews"})
+    @JsonIgnoreProperties({"carts", "orders", "products", "reviews", "categories", "attachments", "userCompanies"})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "companyId")
-    @JsonIgnoreProperties({"carts", "products", "categories"})
+    @JsonIgnoreProperties({"carts", "products", "categories", "userCompanies"})
     private Company company;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference  // Manage the reference to prevent circular serialization
+    @JsonManagedReference
     private List<CartItem> cartItems;
 
     private LocalDateTime createdAt;
@@ -51,7 +51,6 @@ public class Cart {
         lastUpdated = LocalDateTime.now();
     }
 
-    // Calculate total price from cart items
     public double getTotalPrice() {
         if (cartItems == null || cartItems.isEmpty()) {
             return 0.0;
@@ -59,7 +58,7 @@ public class Cart {
         return cartItems.stream()
                 .mapToDouble(item -> {
                     if (item.getProduct() != null && item.getQuantity() != null) {
-                        return item.getProduct().getProductPrice() * item.getQuantity();
+                        return item.getProduct().getProductFinalePrice() * item.getQuantity();
                     }
                     return 0.0;
                 })

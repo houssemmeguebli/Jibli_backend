@@ -71,10 +71,10 @@ public class ProductController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/{id}/attachments")
-    public ResponseEntity<AttachmentDTO> addAttachment(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
+    @PostMapping("/{productId}/attachments")
+    public ResponseEntity<AttachmentDTO> addAttachment(@PathVariable Integer productId, @RequestParam("file") MultipartFile file) {
         try {
-            AttachmentDTO attachment = productService.addAttachment(id, file);
+            AttachmentDTO attachment = productService.addAttachment(productId, file);
             return ResponseEntity.status(HttpStatus.CREATED).body(attachment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);

@@ -10,6 +10,7 @@ public class JibliApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(JibliApplication.class, args);
+
     }
 
 }

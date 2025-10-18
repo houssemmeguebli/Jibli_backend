@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -25,5 +26,8 @@ public class ProductDTO {
     private List<Integer> attachmentIds;
     private List<Integer> reviewIds;
     private List<Integer> orderItemIds;
+    private List<Map<String, Object>> attachments;
+
+
 
 }

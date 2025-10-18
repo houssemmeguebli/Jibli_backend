@@ -8,6 +8,7 @@ import com.backend.jibli.order.Order;
 import com.backend.jibli.product.Product;
 import com.backend.jibli.review.Review;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,50 +28,48 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    @Column(unique = true)
     private String fullName;
 
     @Column(unique = true)
     private String email;
-    
+
     private String phone;
-
     private String address;
-
     private String gender;
-
     private Date dateOfBirth;
-
     private String password;
-
-    private UserRole userRole ;
-    
+    private UserRole userRole;
     private UserStatus userStatus;
-
-    private LocalDateTime createdAt ;
-
+    private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
 
+    // ✅ ONLY include orders, everything else is ignored
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
     private List<Order> orders;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Product> products;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Cart> carts;
 
-    @OneToMany(mappedBy="user")
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Category> categories;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore  // ✅ This is the key fix - was causing infinite loop
     private List<UserCompany> userCompanies;
 
     @PrePersist
@@ -80,9 +79,9 @@ public class User {
         }
         this.lastUpdated = LocalDateTime.now();
     }
+
     @PreUpdate
     public void onUpdate() {
         this.lastUpdated = LocalDateTime.now();
     }
 }
-

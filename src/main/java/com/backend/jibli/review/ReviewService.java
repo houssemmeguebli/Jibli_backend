@@ -55,12 +55,6 @@ public class ReviewService implements IReviewService {
         if (dto.getRating() == null || dto.getRating() < 1 || dto.getRating() > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5");
         }
-        if (dto.getComment() == null || dto.getComment().isBlank()) {
-            throw new IllegalArgumentException("Comment is required");
-        }
-        if (dto.getComment().length() > 1000) {
-            throw new IllegalArgumentException("Comment cannot exceed 1000 characters");
-        }
         if (reviewRepository.existsByUserUserIdAndProductProductId(dto.getUserId(), dto.getProductId())) {
             throw new IllegalArgumentException("User has already reviewed this product");
         }

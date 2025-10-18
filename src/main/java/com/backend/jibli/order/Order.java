@@ -2,6 +2,7 @@ package com.backend.jibli.order;
 import com.backend.jibli.company.Company;
 import com.backend.jibli.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,11 +40,13 @@ public class Order {
     private User user;
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnore
     private List<OrderItem> orderItems;
 
     private LocalDateTime lastUpdated;
     @ManyToOne
     @JoinColumn(name="companyId")
+    @JsonIgnore
     private Company company;
 
     @PrePersist

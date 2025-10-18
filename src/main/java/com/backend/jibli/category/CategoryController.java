@@ -32,6 +32,11 @@ public class CategoryController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CategoryDTO>> findCategoriesByUserUserId(@PathVariable Integer  userId) {
+        List<CategoryDTO> categories = categoryService.findCategoriesByUserUserId(userId);
+                return ResponseEntity.ok(categories);
+    }
 
     @PostMapping
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO dto) {
@@ -82,4 +87,5 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
 }

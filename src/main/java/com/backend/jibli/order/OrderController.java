@@ -87,4 +87,14 @@ public class OrderController {
         return ResponseEntity.ok(orders);
 
     }
+    @PatchMapping("/orderStatus/{id}")
+    public ResponseEntity<OrderDTO> patchOrder(@PathVariable Integer id, @RequestBody OrderDTO dto) {
+        try {
+            return orderService.updateOrder(id, dto)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

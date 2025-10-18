@@ -1,3 +1,4 @@
+
 package com.backend.jibli.product;
 
 import com.backend.jibli.attachment.Attachment;
@@ -9,6 +10,7 @@ import com.backend.jibli.review.Review;
 import com.backend.jibli.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,13 +39,12 @@ public class Product {
 
     private boolean isAvailable;
     private LocalDateTime lastUpdated;
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "categoryId")
-    @JsonIgnoreProperties({"products", "attachments", "user", "company"}) // CRITICAL FIX
+    @JsonIgnoreProperties({"products", "attachments", "user", "company"})
     private Category category;
-
-    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"product"})
@@ -54,24 +55,23 @@ public class Product {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnoreProperties({"product"})
+    @JsonIgnore  // ✅ Hide orderItems to prevent deep nesting
     private List<OrderItem> orderItems;
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnoreProperties({"product", "cart"})
+    @JsonIgnore  // ✅ Hide cartItems to prevent deep nesting
     private List<CartItem> cartItems;
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    @JsonIgnoreProperties({"products", "carts", "orders", "reviews"})
+    @JsonIgnore  // ✅ Hide user reference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "companyId")
-    @JsonIgnoreProperties({"products", "carts", "categories"})
+    @JsonIgnore  // ✅ Hide company reference to break circle
     private Company company;
 
-    // Transient field - calculated on the fly, not stored in DB
     @Transient
     @JsonProperty("productFinalePrice")
     private Double productFinalePrice;
@@ -82,7 +82,6 @@ public class Product {
             this.createdAt = LocalDateTime.now();
         }
         this.lastUpdated = LocalDateTime.now();
-
         if (this.discountPercentage == null) {
             this.discountPercentage = 0.0;
         }
@@ -91,7 +90,6 @@ public class Product {
     @PreUpdate
     public void onUpdate() {
         this.lastUpdated = LocalDateTime.now();
-
         if (this.discountPercentage == null) {
             this.discountPercentage = 0.0;
         }

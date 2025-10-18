@@ -46,22 +46,32 @@ public class OrderService implements IOrderService {
         return mapToDTO(saved);
     }
 
+
     @Override
     public Optional<OrderDTO> updateOrder(Integer id, OrderDTO dto) {
         return orderRepository.findById(id)
                 .map(order -> {
-                    // ✅ Update only provided fields
-                    if (dto.getCustomerName() != null) order.setCustomerName(dto.getCustomerName());
-                    if (dto.getOrderStatus() != null) order.setOrderStatus(dto.getOrderStatus());
-                    if (dto.getTotalAmount() != null) order.setTotalAmount(dto.getTotalAmount());
-                    if (dto.getQuantity() != null) order.setQuantity(dto.getQuantity());
-                    if (dto.getUserId() != null) {
-                        userRepository.findById(dto.getUserId()).ifPresent(order::setUser);
+                    // Update only non-null fields
+                    if (dto.getOrderStatus() != null) {
+                        order.setOrderStatus(dto.getOrderStatus());
                     }
-                    if (dto.getCompanyId() != null) {
-                        Company company = new Company();
-                        company.setCompanyId(dto.getCompanyId());
-                        order.setCompany(company);
+                    if (dto.getCustomerName() != null) {
+                        order.setCustomerName(dto.getCustomerName());
+                    }
+                    if (dto.getTotalAmount() != null) {
+                        order.setTotalAmount(dto.getTotalAmount());
+                    }
+                    if (dto.getQuantity() != null) {
+                        order.setQuantity(dto.getQuantity());
+                    }
+                    if (dto.getCustomerEmail() != null) {
+                        order.setCustomerEmail(dto.getCustomerEmail());
+                    }
+                    if (dto.getCustomerPhone() != null) {
+                        order.setCustomerPhone(dto.getCustomerPhone());
+                    }
+                    if (dto.getCustomerAddress() != null) {
+                        order.setCustomerAddress(dto.getCustomerAddress());
                     }
 
                     Order updated = orderRepository.save(order);
