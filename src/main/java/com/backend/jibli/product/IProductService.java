@@ -19,6 +19,7 @@ public interface IProductService {
     List<ReviewDTO> getProductReviews(Integer productId);
     List<OrderItemDTO> getProductOrderItems(Integer productId);
     List<ProductDTO> findByUserUserId(Integer userId);
+    List<ProductDTO> findByCompanyCompanyId(Integer companyId);
 
 
 

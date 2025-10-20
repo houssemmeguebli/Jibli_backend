@@ -29,5 +29,6 @@ public class OrderDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private List<Integer> orderItemIds;
-
+    private Integer deliveryId;
+    private Integer assignedById;
 }

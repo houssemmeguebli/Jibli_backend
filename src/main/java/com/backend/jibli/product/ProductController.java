@@ -110,4 +110,13 @@ public class ProductController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @GetMapping("/companyProducts/{companyId}")
+    public ResponseEntity<List<ProductDTO>> findByCompanyCompanyId(@PathVariable Integer companyId) {
+        try {
+            List<ProductDTO> orderItems = productService.findByCompanyCompanyId(companyId);
+            return ResponseEntity.ok(orderItems);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

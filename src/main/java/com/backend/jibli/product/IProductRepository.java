@@ -15,4 +15,5 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
     ORDER BY p.productId
     """)
     List<Product> findByUserUserId(Integer userId);
+    List<Product> findByCompanyCompanyId(Integer companyId);
 }

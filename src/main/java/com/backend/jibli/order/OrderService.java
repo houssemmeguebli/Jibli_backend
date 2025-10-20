@@ -116,6 +116,14 @@ public class OrderService implements IOrderService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrderDTO> findOrdersByDeliveryId(Integer deliveryId) {
+        return orderRepository.findOrdersByDeliveryId(deliveryId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
     // ✅ Mapping Order → DTO
     private OrderDTO mapToDTO(Order order) {
         if (order == null) return null;
@@ -144,7 +152,9 @@ public class OrderService implements IOrderService {
                 order.getShippedDate(),
                 order.getCreatedAt(),
                 order.getLastUpdated(),
-                orderItemIds
+                orderItemIds,
+                order.getDelivery() != null ? order.getDelivery().getUserId() : null,
+                order.getAssignedBy() != null ? order.getAssignedBy().getUserId() : null
         );
     }
 
@@ -178,7 +188,13 @@ public class OrderService implements IOrderService {
             company.setCompanyId(dto.getCompanyId());
             order.setCompany(company);
         }
+        if (dto.getDeliveryId() != null) {
+            userRepository.findById(dto.getDeliveryId()).ifPresent(order::setDelivery);
+        }
 
+        if (dto.getAssignedById() != null) {
+            userRepository.findById(dto.getAssignedById()).ifPresent(order::setAssignedBy);
+        }
         return order;
     }
 }

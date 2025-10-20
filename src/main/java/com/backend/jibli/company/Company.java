@@ -31,8 +31,12 @@ public class Company {
     private String companyName;
     private String companyDescription;
     private String companySector;
+    private String companyAddress;
+    private String companyPhone;
+    private String companyEmail;
     private LocalDateTime createdAt ;
     private LocalDateTime lastUpdated ;
+    private CompanyStatus companyStatus;
 
     @OneToMany(mappedBy = "company")
     @JsonIgnore

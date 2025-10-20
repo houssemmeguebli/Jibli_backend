@@ -97,4 +97,11 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @GetMapping("/deliveryOrders/{deliveryId}")
+    public  ResponseEntity<List<OrderDTO>> findOrdersByDeliveryId(@PathVariable Integer deliveryId) {
+        List<OrderDTO> orders = orderService.findOrdersByDeliveryId(deliveryId);
+        return ResponseEntity.ok(orders);
+
+    }
+
 }

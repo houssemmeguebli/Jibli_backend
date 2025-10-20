@@ -3,6 +3,7 @@ import com.backend.jibli.company.Company;
 import com.backend.jibli.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,6 +49,17 @@ public class Order {
     @JoinColumn(name="companyId")
     @JsonIgnore
     private Company company;
+
+    @ManyToOne
+    @JoinColumn(name = "deliveryId")
+    @JsonIgnore
+    private User delivery;
+
+    @ManyToOne
+    @JoinColumn(name = "assignedById")
+    @JsonIgnore
+    private User assignedBy;
+
 
     @PrePersist
     public void onCreate() {

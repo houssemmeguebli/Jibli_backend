@@ -22,4 +22,16 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
     WHERE o.orderId = :orderId
     """)
     Optional<Order> findByIdWithProducts(@Param("orderId") Integer orderId);
+
+    @Query("""
+    SELECT DISTINCT o FROM Order o
+    LEFT JOIN FETCH o.orderItems oi
+    LEFT JOIN FETCH oi.product
+    LEFT JOIN FETCH o.delivery
+    LEFT JOIN FETCH o.assignedBy
+    WHERE o.delivery.userId = :deliveryId
+    """)
+    List<Order> findOrdersByDeliveryId(@Param("deliveryId") Integer deliveryId);
+
+
 }

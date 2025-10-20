@@ -56,6 +56,13 @@ public class ProductService implements IProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductDTO> findByCompanyCompanyId(Integer companyId) {
+        return productRepository.findByCompanyCompanyId(companyId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public ProductDTO createProduct(ProductDTO dto) {

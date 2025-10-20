@@ -11,4 +11,5 @@ public interface IOrderItemService {
     boolean deleteOrderItem(Integer id);
     List<OrderItemDTO> getOrderItemsByOrder(Integer orderId);
     List<OrderItemDTO> getOrderItemsByProduct(Integer productId);
+
 }
