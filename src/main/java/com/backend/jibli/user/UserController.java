@@ -1,5 +1,6 @@
 package com.backend.jibli.user;
 
+import com.backend.jibli.order.OrderDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,4 +52,11 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+    @GetMapping("/userRole/{userRole}")
+    public ResponseEntity<List<UserDTO>> getAllUsersByUserRole(@PathVariable UserRole userRole) {
+        List<UserDTO> users = userService.findAllByUserRole(userRole);
+        return ResponseEntity.ok(users);
+    }
+
+
 }

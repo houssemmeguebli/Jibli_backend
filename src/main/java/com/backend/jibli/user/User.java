@@ -42,6 +42,7 @@ public class User {
     private UserStatus userStatus;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
+    private boolean isAvailable;
 
     // ✅ ONLY include orders, everything else is ignored
     @OneToMany(mappedBy = "user")

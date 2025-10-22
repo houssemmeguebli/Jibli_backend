@@ -179,6 +179,7 @@ public class OrderService implements IOrderService {
         order.setCreatedAt(dto.getCreatedAt());
         order.setLastUpdated(dto.getLastUpdated());
 
+
         if (dto.getUserId() != null) {
             userRepository.findById(dto.getUserId()).ifPresent(order::setUser);
         }
@@ -190,10 +191,14 @@ public class OrderService implements IOrderService {
         }
         if (dto.getDeliveryId() != null) {
             userRepository.findById(dto.getDeliveryId()).ifPresent(order::setDelivery);
+        } else {
+            order.setDelivery(null);
         }
 
         if (dto.getAssignedById() != null) {
             userRepository.findById(dto.getAssignedById()).ifPresent(order::setAssignedBy);
+        } else {
+            order.setAssignedBy(null);
         }
         return order;
     }

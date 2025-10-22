@@ -25,4 +25,6 @@ public class UserDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private List<Integer> userCompanyIds;
+    private boolean isAvailable;
+
 }

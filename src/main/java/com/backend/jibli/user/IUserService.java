@@ -12,5 +12,7 @@ public interface IUserService {
     Optional<UserDTO> updateUser(Integer id, UserDTO dto);
     boolean deleteUser(Integer id);
     List<UserCompanyDTO> getUserCompanies(Integer userId);
+    List<UserDTO> findAllByUserRole(UserRole userRole);
+
 
 }

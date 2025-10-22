@@ -38,6 +38,12 @@ public class UserService implements IUserService {
         return userRepository.findById(id)
                 .map(this::mapToDTO);
     }
+    @Override
+    public List<UserDTO> findAllByUserRole(UserRole userRole) {
+        return userRepository.findAllByUserRole(userRole).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
 
 
     @Override
@@ -57,6 +63,7 @@ public class UserService implements IUserService {
         if (dto.getUserStatus() != null && !isValidStatus(dto.getUserStatus())) {
             throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
         }
+
         return userRepository.findById(id)
                 .map(user -> {
                     if (dto.getFullName() != null) {
@@ -78,6 +85,9 @@ public class UserService implements IUserService {
                     if (dto.getAddress() != null) user.setAddress(dto.getAddress());
                     if (dto.getGender() != null) user.setGender(dto.getGender());
                     if (dto.getDateOfBirth() != null) user.setDateOfBirth(dto.getDateOfBirth());
+
+                    user.setAvailable(dto.isAvailable());
+
                     if (dto.getUserRole() != null) user.setUserRole(UserRole.valueOf(dto.getUserRole()));
                     if (dto.getUserStatus() != null) user.setUserStatus(UserStatus.valueOf(dto.getUserStatus()));
                     user.setLastUpdated(LocalDateTime.now());
@@ -119,7 +129,8 @@ public class UserService implements IUserService {
                 user.getUserStatus() != null ? user.getUserStatus().name() : null,
                 user.getCreatedAt(),
                 user.getLastUpdated(),
-                userCompanyIds
+                userCompanyIds,
+                user.isAvailable()
         );
     }
 
@@ -131,6 +142,7 @@ public class UserService implements IUserService {
         user.setAddress(dto.getAddress());
         user.setGender(dto.getGender());
         user.setDateOfBirth(dto.getDateOfBirth());
+        user.setAvailable(dto.isAvailable());
         user.setUserRole(dto.getUserRole() != null ? UserRole.valueOf(dto.getUserRole()) : null);
         user.setUserStatus(dto.getUserStatus() != null ? UserStatus.valueOf(dto.getUserStatus()) : null);
         return user;
