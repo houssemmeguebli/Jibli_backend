@@ -154,7 +154,15 @@ public class OrderService implements IOrderService {
                 order.getLastUpdated(),
                 orderItemIds,
                 order.getDelivery() != null ? order.getDelivery().getUserId() : null,
-                order.getAssignedBy() != null ? order.getAssignedBy().getUserId() : null
+                order.getAssignedBy() != null ? order.getAssignedBy().getUserId() : null,
+                order.getPickedUpDate(),
+                order.getInPreparationDate(),
+                order.getAcceptedDate(),
+                order.getWaitingDate(),
+                order.getCanceledDate(),
+                order.getDeliveredDate()
+
+
         );
     }
 
@@ -178,6 +186,13 @@ public class OrderService implements IOrderService {
         order.setShippedDate(dto.getShippedDate());
         order.setCreatedAt(dto.getCreatedAt());
         order.setLastUpdated(dto.getLastUpdated());
+        order.setPickedUpDate(dto.getPickedUpDate());
+        order.setInPreparationDate(dto.getInPreparationDate());
+        order.setAcceptedDate(dto.getAcceptedDate());
+        order.setWaitingDate(dto.getWaitingDate());
+        order.setCanceledDate(dto.getCanceledDate());
+        order.setDeliveredDate(dto.getDeliveredDate());
+
 
 
         if (dto.getUserId() != null) {

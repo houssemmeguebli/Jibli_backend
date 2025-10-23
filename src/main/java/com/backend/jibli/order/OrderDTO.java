@@ -31,4 +31,10 @@ public class OrderDTO {
     private List<Integer> orderItemIds;
     private Integer deliveryId;
     private Integer assignedById;
+    private LocalDateTime deliveredDate;
+    private LocalDateTime inPreparationDate;
+    private LocalDateTime pickedUpDate;
+    private LocalDateTime waitingDate;
+    private LocalDateTime acceptedDate;
+    private LocalDateTime canceledDate;
 }

@@ -23,6 +23,12 @@ public class Order {
     private Integer orderId;
     private LocalDateTime orderDate = LocalDateTime.now();
     private LocalDateTime shippedDate;
+    private LocalDateTime deliveredDate;
+    private LocalDateTime inPreparationDate;
+    private LocalDateTime pickedUpDate;
+    private LocalDateTime waitingDate;
+    private LocalDateTime acceptedDate;
+    private LocalDateTime canceledDate;
     private String customerName;
     private String customerEmail;
     private String customerAddress;
@@ -33,7 +39,7 @@ public class Order {
     private Double discount;
     private Double totalAmount;
     private OrderStatus orderStatus;
-    private LocalDateTime createdAt ;
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "userId")
@@ -45,6 +51,7 @@ public class Order {
     private List<OrderItem> orderItems;
 
     private LocalDateTime lastUpdated;
+
     @ManyToOne
     @JoinColumn(name="companyId")
     @JsonIgnore
@@ -67,11 +74,63 @@ public class Order {
             this.createdAt = LocalDateTime.now();
         }
         this.lastUpdated = LocalDateTime.now();
+        if (this.orderStatus == null) {
+            this.orderStatus = OrderStatus.PENDING;
+        }
     }
+
     @PreUpdate
     public void onUpdate() {
         this.lastUpdated = LocalDateTime.now();
+        updateStatusTimestamp();
+    }
+
+    /**
+     * Automatically update the corresponding date field when status changes
+     */
+    private void updateStatusTimestamp() {
+        if (this.orderStatus != null) {
+            LocalDateTime now = LocalDateTime.now();
+            switch (this.orderStatus) {
+                case IN_PREPARATION:
+                    if (this.inPreparationDate == null) {
+                        this.inPreparationDate = now;
+                    }
+                    break;
+                case PICKED_UP:
+                    if (this.pickedUpDate == null) {
+                        this.pickedUpDate = now;
+                        this.shippedDate = now;
+                    }
+                    break;
+                    case WAITING:
+                    if (this.waitingDate == null) {
+                        this.waitingDate = now;
+                    }
+                    break;
+                    case ACCEPTED:
+                    if (this.acceptedDate == null) {
+                        this.acceptedDate = now;
+                    }
+                    break;
+                case DELIVERED:
+                    if (this.deliveredDate == null) {
+                        this.deliveredDate = now;
+                    }
+                    break;
+                case CANCELED:
+                    if (this.canceledDate == null) {
+                        this.canceledDate = now;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void setOrderStatus(OrderStatus newStatus) {
+        this.orderStatus = newStatus;
+        updateStatusTimestamp();
     }
 }
-
-
