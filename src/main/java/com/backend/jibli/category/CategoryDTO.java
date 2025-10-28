@@ -20,6 +20,6 @@ public class CategoryDTO {
     private List<Integer> attachmentIds;
     private List<Integer> productIds;
     private Integer userId;
-
+    private Integer companyId;
 
 }

@@ -1,5 +1,6 @@
 package com.backend.jibli.review;
 
+import com.backend.jibli.company.Company;
 import com.backend.jibli.product.IProductRepository;
 import com.backend.jibli.product.Product;
 import com.backend.jibli.user.IUserRepository;
@@ -43,21 +44,47 @@ public class ReviewService implements IReviewService {
         if (dto.getUserId() == null) {
             throw new IllegalArgumentException("User ID is required");
         }
-        if (dto.getProductId() == null) {
-            throw new IllegalArgumentException("Product ID is required");
+
+        // Allow either productId OR companyId, but not both null
+        if (dto.getProductId() == null && dto.getCompanyId() == null) {
+            throw new IllegalArgumentException("Either Product ID or Company ID is required");
         }
+
         if (!userRepository.existsById(dto.getUserId())) {
             throw new IllegalArgumentException("User not found");
         }
-        if (!productRepository.existsById(dto.getProductId())) {
+
+        // Validate product if provided
+        if (dto.getProductId() != null && !productRepository.existsById(dto.getProductId())) {
             throw new IllegalArgumentException("Product not found");
         }
-        if (dto.getRating() == null || dto.getRating() < 1 || dto.getRating() > 5) {
+
+        // Rating and comment validation - at least one must be provided
+        if ((dto.getRating() == null || dto.getRating() == 0) &&
+                (dto.getComment() == null || dto.getComment().isBlank())) {
+            throw new IllegalArgumentException("Either rating or comment is required");
+        }
+
+        // Validate rating if provided
+        if (dto.getRating() != null && dto.getRating() != 0 &&
+                (dto.getRating() < 1 || dto.getRating() > 5)) {
             throw new IllegalArgumentException("Rating must be between 1 and 5");
         }
-        if (reviewRepository.existsByUserUserIdAndProductProductId(dto.getUserId(), dto.getProductId())) {
-            throw new IllegalArgumentException("User has already reviewed this product");
+
+        // Validate comment if provided
+        if (dto.getComment() != null && !dto.getComment().isBlank()) {
+            if (dto.getComment().length() > 500) {
+                throw new IllegalArgumentException("Comment cannot exceed 500 characters");
+            }
         }
+
+        // Check duplicate only for product reviews (not for company reviews)
+        if (dto.getProductId() != null) {
+            if (reviewRepository.existsByUserUserIdAndProductProductId(dto.getUserId(), dto.getProductId())) {
+                throw new IllegalArgumentException("User has already reviewed this product");
+            }
+        }
+
         Review review = mapToEntity(dto);
         Review saved = reviewRepository.save(review);
         return mapToDTO(saved);
@@ -143,6 +170,11 @@ public class ReviewService implements IReviewService {
             Product product = new Product();
             product.setProductId(dto.getProductId());
             review.setProduct(product);
+        }
+        if (dto.getCompanyId() != null) {
+            Company company = new Company();
+            company.setCompanyId(dto.getCompanyId());
+            review.setCompany(company);
         }
         review.setRating(dto.getRating());
         review.setComment(dto.getComment());

@@ -102,6 +102,8 @@ public class CategoryService implements ICategoryService {
     }
 
     private CategoryDTO mapToDTO(Category category) {
+        if (category == null) return null;
+
         List<Integer> attachmentIds = category.getAttachments() != null
                 ? category.getAttachments().stream()
                 .map(Attachment::getAttachmentId)
@@ -123,6 +125,9 @@ public class CategoryService implements ICategoryService {
         // Get userId from category
         Integer userId = category.getUser() != null ? category.getUser().getUserId() : null;
 
+        // Get companyId from category
+        Integer companyId = category.getCompany() != null ? category.getCompany().getCompanyId() : null;
+
         return new CategoryDTO(
                 category.getCategoryId(),
                 category.getName(),
@@ -132,12 +137,14 @@ public class CategoryService implements ICategoryService {
                 category.getLastUpdated(),
                 attachmentIds,
                 productIds,
-                userId
+                userId,
+                companyId
         );
     }
 
-
     private Category mapToEntity(CategoryDTO dto) {
+        if (dto == null) return null;
+
         Category category = new Category();
         category.setName(dto.getName());
         category.setDescription(dto.getDescription());

@@ -18,4 +18,6 @@ public interface IAttachmentService {
     Optional<AttachmentDTO> updateAttachment(Integer id, MultipartFile file, String entityType, Integer entityId);
     boolean deleteAttachment(Integer id);
     List<AttachmentDTO> getAttachmentsByEntity(String entityType, Integer entityId);
+    List<AttachmentDTO> findByProductProductId(Integer productId);
+
 }

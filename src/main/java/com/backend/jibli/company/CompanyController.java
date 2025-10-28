@@ -44,6 +44,22 @@ public class CompanyController {
         return ResponseEntity.ok(companies);
 
     }
+    @GetMapping("/{companyId}/products")
+    public ResponseEntity<CompanyDTO> findByCompanyIdWithProducts(@PathVariable Integer companyId) {
+        CompanyDTO company = companyService.findByCompanyIdWithProducts(companyId);
+        return ResponseEntity.ok(company);
+    }
+    @GetMapping("/{companyId}/reviews")
+    public ResponseEntity<CompanyDTO> findByCompanyIdWithReviews(@PathVariable Integer companyId) {
+        CompanyDTO company = companyService.findByCompanyIdWithReviews(companyId);
+        return ResponseEntity.ok(company);
+    }
+    @GetMapping("/{companyId}/categories")
+    public ResponseEntity<CompanyDTO> findByCompanyIdWithCategories(@PathVariable Integer companyId) {
+        CompanyDTO company = companyService.findByCompanyIdWithCategories(companyId);
+        return ResponseEntity.ok(company);
+    }
+
 
 
     @PostMapping
@@ -76,41 +92,6 @@ public class CompanyController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/{id}/image")
-    public ResponseEntity<CompanyDTO> uploadCompanyImage(
-            @PathVariable Integer id,
-            @RequestParam("file") MultipartFile file) {
-        try {
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body(null);
-            }
 
-            // Validate company existence
-            return (ResponseEntity<CompanyDTO>) companyService.getCompanyById(id).map(companyDTO -> {
-                try {
-                    // Create Attachment entity
-                    Attachment attachment = new Attachment();
-                    attachment.setFileName(file.getOriginalFilename());
-                    attachment.setFileType(file.getContentType());
-                    attachment.setData(file.getBytes());
-                    attachment.setEntityType("Company");
-                    attachment.setEntityId(id);
 
-                    // Persist attachment
-                    entityManager.persist(attachment);
-
-                    // Update CompanyDTO with new imageUrl
-                    companyDTO.setImageUrl(attachment.getFileName()); // Use fileName as URL or generate via storage service
-                    return companyService.updateCompany(id, companyDTO)
-                            .map(ResponseEntity::ok)
-                            .orElse(ResponseEntity.notFound().build());
-                } catch (IOException e) {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-                }
-            }).orElse(ResponseEntity.notFound().build());
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
 }

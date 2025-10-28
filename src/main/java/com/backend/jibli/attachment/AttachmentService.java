@@ -140,6 +140,14 @@ public class AttachmentService implements IAttachmentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<AttachmentDTO> findByProductProductId(Integer productId) {
+        return attachmentRepository.findByProductProductId(productId)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is required and cannot be empty");

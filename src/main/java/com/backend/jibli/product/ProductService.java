@@ -5,12 +5,14 @@ import com.backend.jibli.attachment.Attachment;
 import com.backend.jibli.attachment.AttachmentDTO;
 import com.backend.jibli.attachment.IAttachmentService;
 import com.backend.jibli.category.Category;
+import com.backend.jibli.company.Company;
 import com.backend.jibli.order.IOrderItemService;
 import com.backend.jibli.order.OrderItem;
 import com.backend.jibli.order.OrderItemDTO;
 import com.backend.jibli.review.IReviewService;
 import com.backend.jibli.review.Review;
 import com.backend.jibli.review.ReviewDTO;
+import com.backend.jibli.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,11 +101,20 @@ public class ProductService implements IProductService {
                     if (dto.getProductName() != null) product.setProductName(dto.getProductName());
                     if (dto.getProductDescription() != null) product.setProductDescription(dto.getProductDescription());
                     if (dto.getProductPrice() != null) product.setProductPrice(dto.getProductPrice());
+                    if (dto.getDiscountPercentage() != null) product.setDiscountPercentage(dto.getDiscountPercentage());
+
                     if (dto.getCategoryId() != null) {
                         Category category = new Category();
                         category.setCategoryId(dto.getCategoryId());
                         product.setCategory(category);
                     }
+                    if (dto.isAvailable() != product.isAvailable()) product.setAvailable(dto.isAvailable());
+                    if (dto.getCategoryId() != null) {
+                        Category category = new Category();
+                        category.setCategoryId(dto.getCategoryId());
+                        product.setCategory(category);
+                    }
+
                     Product updated = productRepository.save(product);
                     return mapToDTO(updated);
                 });
@@ -189,6 +200,7 @@ public class ProductService implements IProductService {
         dto.setDiscountPercentage(product.getDiscountPercentage());
         dto.setCategoryId(product.getCategory() != null ? product.getCategory().getCategoryId() : null);
         dto.setUserId(product.getUser() != null ? product.getUser().getUserId() : null);
+        dto.setCompanyId(product.getCompany() != null ? product.getCompany().getCompanyId() : null);
         dto.setCreatedAt(product.getCreatedAt());
         dto.setLastUpdated(product.getLastUpdated());
         dto.setAttachmentIds(attachmentIds);
@@ -210,6 +222,20 @@ public class ProductService implements IProductService {
             category.setCategoryId(dto.getCategoryId());
             product.setCategory(category);
         }
+        if (dto.getUserId() != null) {
+            User user = new User();
+            user.setUserId(dto.getUserId());
+            product.setUser(user);
+        }
+        if (dto.getCompanyId() != null) {
+            Company company = new Company();
+            company.setCompanyId(dto.getCompanyId());
+            product.setCompany(company);
+        }
+        product.setAvailable(dto.isAvailable());
+        product.setDiscountPercentage(dto.getDiscountPercentage());
+
+
 
         return product;
     }

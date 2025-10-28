@@ -132,6 +132,21 @@ public class AttachmentController {
         }
     }
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<?> getAttachmentsByProduct(@PathVariable Integer productId) {
+        try {
+            List<AttachmentDTO> attachments = attachmentService.findByProductProductId(productId);
+            return ResponseEntity.ok(attachments);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(createErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Failed to retrieve attachments: " + e.getMessage()));
+        }
+    }
+
+
     private Map<String, Object> createErrorResponse(String message) {
         Map<String, Object> error = new HashMap<>();
         error.put("error", message);

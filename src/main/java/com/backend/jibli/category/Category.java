@@ -37,7 +37,7 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "companyId")
-    @JsonIgnoreProperties({"categories", "products", "carts"})
+    @JsonIgnore  // Ignore to prevent deep nesting
     private Company company;
 
     @OneToMany(mappedBy = "entityId", cascade = CascadeType.ALL)

@@ -47,7 +47,6 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"product"})
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "product")

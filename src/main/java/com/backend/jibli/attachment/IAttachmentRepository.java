@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IAttachmentRepository extends JpaRepository<Attachment, Integer> {
     List<Attachment> findByEntityTypeAndEntityId(String entityType, Integer entityId);
+    List<Attachment> findByProductProductId(Integer productId);
 }

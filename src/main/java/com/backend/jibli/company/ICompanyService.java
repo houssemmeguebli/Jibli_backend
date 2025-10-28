@@ -1,4 +1,6 @@
 package com.backend.jibli.company;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -10,4 +12,11 @@ public interface ICompanyService {
     List<CompanyDTO> findByUserUserId(Integer userId);
 
     boolean deleteCompany(Integer id);
+    List<CompanyDTO> findByUserUserIdWithProducts(@Param("userId") Integer userId);
+    CompanyDTO findByCompanyIdWithProducts(Integer companyId);
+    CompanyDTO findByCompanyIdWithReviews( Integer companyId);
+    CompanyDTO findByCompanyIdWithCategories(Integer companyId);
+
+
+
 }

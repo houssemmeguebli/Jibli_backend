@@ -20,13 +20,15 @@ public class ProductDTO {
     private boolean isAvailable;
     private Double discountPercentage = 0.0;
     private Integer categoryId;
-    private  Integer userId;
+    private Integer userId;
+    private Integer companyId;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private List<Integer> attachmentIds;
     private List<Integer> reviewIds;
     private List<Integer> orderItemIds;
     private List<Map<String, Object>> attachments;
+
 
 
 
