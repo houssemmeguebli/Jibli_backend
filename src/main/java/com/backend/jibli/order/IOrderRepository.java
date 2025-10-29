@@ -33,5 +33,7 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
     """)
     List<Order> findOrdersByDeliveryId(@Param("deliveryId") Integer deliveryId);
 
+    List<Order> findOrdersByCompanyCompanyId(Integer companyId);
+
 
 }

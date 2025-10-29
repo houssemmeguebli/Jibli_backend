@@ -123,6 +123,13 @@ public class OrderService implements IOrderService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrderDTO> findOrdersByCompanyCompanyId(Integer companyId) {
+        return orderRepository.findOrdersByCompanyCompanyId(companyId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     // ✅ Mapping Order → DTO
     private OrderDTO mapToDTO(Order order) {

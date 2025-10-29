@@ -103,5 +103,12 @@ public class OrderController {
         return ResponseEntity.ok(orders);
 
     }
+    @GetMapping("/companyOrders/{companyId}")
+    public  ResponseEntity<List<OrderDTO>> findOrdersByCompanyCompanyId(@PathVariable Integer companyId) {
+        List<OrderDTO> orders = orderService.findOrdersByCompanyCompanyId(companyId);
+        return ResponseEntity.ok(orders);
+
+    }
+
 
 }

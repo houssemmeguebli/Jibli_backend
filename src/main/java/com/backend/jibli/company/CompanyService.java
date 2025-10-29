@@ -191,8 +191,12 @@ public class CompanyService implements ICompanyService {
         dto.setAverageRating(averageRating);
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
-        dto.setUserId(company.getUser().getUserId());
-
+        // Safe null check for user
+        if (company.getUser() != null) {
+            dto.setUserId(company.getUser().getUserId());
+        } else {
+            dto.setUserId(null);
+        }
         return dto;
     }
 

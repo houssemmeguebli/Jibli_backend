@@ -17,6 +17,8 @@ public interface IOrderService {
     List<OrderDTO> findByIdWithProducts(@Param("orderId") Integer orderId);
     List<OrderDTO> findAllWithProducts();
     List<OrderDTO> findOrdersByDeliveryId(@Param("deliveryId") Integer deliveryId);
+    List<OrderDTO> findOrdersByCompanyCompanyId(Integer companyId);
+
 
 
 }
