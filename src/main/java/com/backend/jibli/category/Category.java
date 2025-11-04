@@ -6,6 +6,7 @@ import com.backend.jibli.user.User;
 import com.backend.jibli.company.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,7 +42,8 @@ public class Category {
     private Company company;
 
     @OneToMany(mappedBy = "entityId", cascade = CascadeType.ALL)
-    @JsonIgnore  // Ignore to prevent deep nesting
+    @JsonIgnore
+    @JsonManagedReference// Ignore to prevent deep nesting
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "category")

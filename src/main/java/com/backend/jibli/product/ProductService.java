@@ -157,14 +157,16 @@ public class ProductService implements IProductService {
 
 
     private ProductDTO mapToDTO(Product product) {
-        List<Integer> attachmentIds = product.getAttachments() != null
+        /*List<Integer> attachmentIds = product.getAttachments() != null
                 ? product.getAttachments().stream()
                 .map(Attachment::getAttachmentId)
                 .collect(Collectors.toList())
                 : List.of();
 
+         */
+
         // Map full attachment objects including fileName and fileType
-        List<Map<String, Object>> attachments = product.getAttachments() != null
+       /* List<Map<String, Object>> attachments = product.getAttachments() != null
                 ? product.getAttachments().stream()
                 .map(att -> {
                     Map<String, Object> attachmentMap = new java.util.HashMap<>();
@@ -177,6 +179,8 @@ public class ProductService implements IProductService {
                 })
                 .collect(Collectors.toList())
                 : List.of();
+
+        */
 
         List<Integer> reviewIds = product.getReviews() != null
                 ? product.getReviews().stream()
@@ -203,10 +207,10 @@ public class ProductService implements IProductService {
         dto.setCompanyId(product.getCompany() != null ? product.getCompany().getCompanyId() : null);
         dto.setCreatedAt(product.getCreatedAt());
         dto.setLastUpdated(product.getLastUpdated());
-        dto.setAttachmentIds(attachmentIds);
+        //dto.setAttachmentIds(attachmentIds);
         dto.setReviewIds(reviewIds);
         dto.setOrderItemIds(orderItemIds);
-        dto.setAttachments(attachments);
+        //dto.setAttachments(attachments);
 
         return dto;
     }

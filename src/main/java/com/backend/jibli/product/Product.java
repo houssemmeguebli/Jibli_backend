@@ -9,6 +9,7 @@ import com.backend.jibli.order.OrderItem;
 import com.backend.jibli.review.Review;
 import com.backend.jibli.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -47,6 +48,7 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "product")

@@ -4,6 +4,7 @@ import com.backend.jibli.category.Category;
 import com.backend.jibli.company.Company;
 import com.backend.jibli.product.Product;
 import com.backend.jibli.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,16 +50,19 @@ public class Attachment {
             insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "FK_attachment_product"))
     @JsonIgnore
+    @JsonBackReference
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId", insertable = false, updatable = false)
     @JsonIgnore
+    @JsonBackReference
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", insertable = false, updatable = false)
     @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

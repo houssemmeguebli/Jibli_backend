@@ -16,6 +16,8 @@ public interface ICompanyService {
     CompanyDTO findByCompanyIdWithProducts(Integer companyId);
     CompanyDTO findByCompanyIdWithReviews( Integer companyId);
     CompanyDTO findByCompanyIdWithCategories(Integer companyId);
+    List<CompanyDTO> findAllActiveCompanies();
+
 
 
 

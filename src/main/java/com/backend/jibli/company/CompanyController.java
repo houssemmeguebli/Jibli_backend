@@ -31,6 +31,11 @@ public class CompanyController {
         List<CompanyDTO> companies = companyService.getAllCompanies();
         return ResponseEntity.ok(companies);
     }
+    @GetMapping("/activeCompany")
+    public ResponseEntity<List<CompanyDTO>> findAllActiveCompanies() {
+        List<CompanyDTO> companies = companyService.findAllActiveCompanies();
+        return ResponseEntity.ok(companies);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id) {

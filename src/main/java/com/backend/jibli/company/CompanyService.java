@@ -165,6 +165,14 @@ public class CompanyService implements ICompanyService {
         return mapToDTOWithCategories(company);
     }
 
+    @Override
+    public List<CompanyDTO> findAllActiveCompanies() {
+        return companyRepository.findAllActiveCompanies().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+
+    }
+
     private CompanyDTO mapToDTO(Company company) {
         if (company == null) return null;
 
@@ -189,6 +197,7 @@ public class CompanyService implements ICompanyService {
         dto.setLastUpdated(company.getLastUpdated());
         dto.setCompanyStatus(company.getCompanyStatus());
         dto.setAverageRating(averageRating);
+        dto.setDeliveryFee(company.getDeliveryFee());
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
         // Safe null check for user
@@ -231,6 +240,7 @@ public class CompanyService implements ICompanyService {
         dto.setLastUpdated(company.getLastUpdated());
         dto.setCompanyStatus(company.getCompanyStatus());
         dto.setAverageRating(averageRating);
+        dto.setDeliveryFee(company.getDeliveryFee());
         dto.setProducts(productDTOs);
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
@@ -270,6 +280,7 @@ public class CompanyService implements ICompanyService {
         dto.setLastUpdated(company.getLastUpdated());
         dto.setCompanyStatus(company.getCompanyStatus());
         dto.setAverageRating(averageRating);
+        dto.setDeliveryFee(company.getDeliveryFee());
         dto.setReviews(reviewDTOs);
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
@@ -309,6 +320,7 @@ public class CompanyService implements ICompanyService {
         dto.setLastUpdated(company.getLastUpdated());
         dto.setCompanyStatus(company.getCompanyStatus());
         dto.setAverageRating(averageRating);
+        dto.setDeliveryFee(company.getDeliveryFee());
         dto.setCategories(categoryDTOs);
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
@@ -370,6 +382,7 @@ public class CompanyService implements ICompanyService {
         company.setCompanyPhone(dto.getCompanyPhone());
         company.setCompanyEmail(dto.getCompanyEmail());
         company.setCompanyStatus(dto.getCompanyStatus());
+        company.setDeliveryFee(dto.getDeliveryFee());
         company.setTimeOpen(dto.getTimeOpen());
         company.setTimeClose(dto.getTimeClose());
         if (dto.getUserId() != null) {

@@ -55,6 +55,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
+    @JsonManagedReference
     private List<Cart> carts;
 
     @OneToMany(mappedBy = "user")
@@ -67,6 +68,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
+    @JsonManagedReference
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "user")

@@ -1,6 +1,7 @@
 package com.backend.jibli.order;
 
 import com.backend.jibli.company.Company;
+import com.backend.jibli.company.CompanyDTO;
 import com.backend.jibli.user.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,11 +41,26 @@ public class OrderService implements IOrderService {
         if (dto.getOrderStatus() == null) {
             throw new IllegalArgumentException("Order status is required");
         }
-
         Order order = mapToEntity(dto);
+
+        // ⚙️ Apply delivery fee logic if company is provided
+        if (dto.getCompanyId() != null) {
+            Company company = order.getCompany();
+            double deliveryFee = company.getDeliveryFee() != null ? company.getDeliveryFee() : 0.0;
+
+            order.setDeliveryFee(deliveryFee);
+            // Add delivery fee to total amount if not free
+            double totalAmount = (dto.getTotalAmount() != null ? dto.getTotalAmount() : 0.0) + deliveryFee;
+            order.setTotalAmount(totalAmount);
+        } else {
+            order.setDeliveryFee(0.0);
+        }
+
+        // 💾 Save and return
         Order saved = orderRepository.save(order);
         return mapToDTO(saved);
     }
+
 
 
     @Override
@@ -73,6 +89,7 @@ public class OrderService implements IOrderService {
                     if (dto.getCustomerAddress() != null) {
                         order.setCustomerAddress(dto.getCustomerAddress());
                     }
+
 
                     Order updated = orderRepository.save(order);
                     return mapToDTO(updated);
@@ -141,6 +158,20 @@ public class OrderService implements IOrderService {
                 .collect(Collectors.toList())
                 : List.of();
 
+        CompanyDTO companyDTO = order.getCompany() != null
+                ? new CompanyDTO(
+                order.getCompany().getCompanyId(),
+                order.getCompany().getCompanyName(),
+                order.getCompany().getCompanyDescription(),
+                order.getCompany().getCompanySector(),
+                order.getCompany().getCompanyAddress(),
+                order.getCompany().getCompanyPhone(),
+                order.getCompany().getTimeOpen(),
+                order.getCompany().getTimeClose(),
+                order.getCompany().getAverageRating()
+        )
+                : null;
+
         return new OrderDTO(
                 order.getOrderId(),
                 order.getUser() != null ? order.getUser().getUserId() : null,
@@ -154,6 +185,7 @@ public class OrderService implements IOrderService {
                 order.getQuantity(),
                 order.getDiscount(),
                 order.getTotalAmount(),
+                order.getDeliveryFee(),
                 order.getOrderStatus(),
                 order.getOrderDate(),
                 order.getShippedDate(),
@@ -167,7 +199,9 @@ public class OrderService implements IOrderService {
                 order.getAcceptedDate(),
                 order.getWaitingDate(),
                 order.getCanceledDate(),
-                order.getDeliveredDate()
+                order.getDeliveredDate(),
+                companyDTO
+
 
 
         );
@@ -188,6 +222,7 @@ public class OrderService implements IOrderService {
         order.setQuantity(dto.getQuantity());
         order.setDiscount(dto.getDiscount());
         order.setTotalAmount(dto.getTotalAmount());
+        order.setDeliveryFee(dto.getDeliveryFee());
         order.setOrderStatus(dto.getOrderStatus());
         order.setOrderDate(dto.getOrderDate());
         order.setShippedDate(dto.getShippedDate());

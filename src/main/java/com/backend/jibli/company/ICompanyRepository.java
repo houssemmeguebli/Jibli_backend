@@ -28,4 +28,8 @@ public interface ICompanyRepository extends JpaRepository<Company,Integer> {
             "LEFT JOIN FETCH c.categories " +
             "WHERE c.companyId = :companyId")
     Company findByCompanyIdWithCategories(@Param("companyId") Integer companyId);
+
+    @Query("SELECT c FROM Company c WHERE c.companyStatus = com.backend.jibli.company.CompanyStatus.ACTIVE")
+    List<Company> findAllActiveCompanies();
+
 }

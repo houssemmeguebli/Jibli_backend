@@ -38,6 +38,7 @@ public class Order {
     private Integer quantity;
     private Double discount;
     private Double totalAmount;
+    private Double deliveryFee;
     private OrderStatus orderStatus;
     private LocalDateTime createdAt;
 
@@ -52,9 +53,8 @@ public class Order {
 
     private LocalDateTime lastUpdated;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="companyId")
-    @JsonIgnore
     private Company company;
 
     @ManyToOne
@@ -85,43 +85,29 @@ public class Order {
         updateStatusTimestamp();
     }
 
-    /**
-     * Automatically update the corresponding date field when status changes
-     */
+
     private void updateStatusTimestamp() {
         if (this.orderStatus != null) {
             LocalDateTime now = LocalDateTime.now();
             switch (this.orderStatus) {
                 case IN_PREPARATION:
-                    if (this.inPreparationDate == null) {
-                        this.inPreparationDate = now;
-                    }
+                    this.inPreparationDate = now;
                     break;
                 case PICKED_UP:
-                    if (this.pickedUpDate == null) {
-                        this.pickedUpDate = now;
-                        this.shippedDate = now;
-                    }
+                    this.pickedUpDate = now;
+                    this.shippedDate = now;
                     break;
-                    case WAITING:
-                    if (this.waitingDate == null) {
-                        this.waitingDate = now;
-                    }
+                case WAITING:
+                    this.waitingDate = now;
                     break;
-                    case ACCEPTED:
-                    if (this.acceptedDate == null) {
-                        this.acceptedDate = now;
-                    }
+                case ACCEPTED:
+                    this.acceptedDate = now;
                     break;
                 case DELIVERED:
-                    if (this.deliveredDate == null) {
-                        this.deliveredDate = now;
-                    }
+                    this.deliveredDate = now;
                     break;
                 case CANCELED:
-                    if (this.canceledDate == null) {
-                        this.canceledDate = now;
-                    }
+                    this.canceledDate = now;
                     break;
                 default:
                     break;

@@ -1,5 +1,6 @@
 package com.backend.jibli.order;
 
+import com.backend.jibli.company.CompanyDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ public class OrderDTO {
     private Integer quantity;
     private Double discount;
     private Double totalAmount;
+    private Double deliveryFee;
+
     private OrderStatus orderStatus;
     private LocalDateTime orderDate;
     private LocalDateTime shippedDate;
@@ -37,4 +40,5 @@ public class OrderDTO {
     private LocalDateTime waitingDate;
     private LocalDateTime acceptedDate;
     private LocalDateTime canceledDate;
+    private CompanyDTO company;
 }

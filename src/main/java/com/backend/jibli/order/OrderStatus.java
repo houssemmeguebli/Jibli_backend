@@ -5,6 +5,7 @@ public enum OrderStatus {
     IN_PREPARATION,
     WAITING,
     ACCEPTED,
+    REJECTED,
     PICKED_UP,
     DELIVERED,
     CANCELED

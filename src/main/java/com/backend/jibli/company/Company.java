@@ -9,6 +9,7 @@ import com.backend.jibli.attachment.Attachment;
 import com.backend.jibli.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,10 +56,14 @@ public class Company {
     private LocalDateTime lastUpdated;
 
     @Column(name = "company_status")
-    private CompanyStatus companyStatus;
+    private CompanyStatus companyStatus = CompanyStatus.INACTIVE;
 
     @Column(name = "average_rating")
     private Double averageRating;
+
+    @Column(name = "delivery_fee")
+    private Double deliveryFee;
+
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -80,12 +85,12 @@ public class Company {
     @JsonIgnore
     private List<Review> reviews;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @JsonIgnore
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Cart> carts;
     @Column(name = "time_open")
     @JsonFormat(pattern = "HH:mm:ss")

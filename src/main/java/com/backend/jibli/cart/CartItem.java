@@ -21,11 +21,12 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cartId")
-    @JsonBackReference  // Back reference to prevent circular serialization
+    @JsonBackReference
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "productId")
+    @JsonBackReference
     @JsonIgnoreProperties({
             "hibernateLazyInitializer",
             "handler",
