@@ -37,6 +37,13 @@ public class SpringDocConfig {
                 .pathsToMatch("/users/**")
                 .build();
     }
+    @Bean
+    public GroupedOpenApi annoncesPublicApi() {
+        return GroupedOpenApi.builder()
+                .group("Only Annonces Management API")
+                .pathsToMatch("/api/admin/broadcast/**")
+                .build();
+    }
 
     @Bean
     public GroupedOpenApi companyPublicApi() {

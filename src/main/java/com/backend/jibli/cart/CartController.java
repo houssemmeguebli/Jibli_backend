@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/carts")
@@ -66,6 +67,11 @@ public class CartController {
         return cartService.findByUserUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/user/{userId}/grouped")
+    public ResponseEntity<List<Map<String, Object>>> getUserCartsGroupedByCompany(@PathVariable Integer userId) {
+        List<Map<String, Object>> groupedCarts = cartService.getUserCartsGroupedByCompany(userId);
+        return ResponseEntity.ok(groupedCarts);
     }
 
 }

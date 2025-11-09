@@ -47,7 +47,7 @@ public class Category {
     private List<Attachment> attachments;
 
     @OneToMany(mappedBy = "category")
-    @JsonIgnore  // CRITICAL FIX - This breaks the circular reference
+    @JsonManagedReference
     private List<Product> products;
 
     @PrePersist

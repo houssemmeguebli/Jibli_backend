@@ -3,28 +3,37 @@ package com.backend.jibli.company;
 import com.backend.jibli.attachment.Attachment;
 import com.backend.jibli.category.Category;
 import com.backend.jibli.category.CategoryDTO;
+import com.backend.jibli.notification.NotificationService;
 import com.backend.jibli.product.Product;
 import com.backend.jibli.product.ProductDTO;
 import com.backend.jibli.review.Review;
 import com.backend.jibli.review.ReviewDTO;
+import com.backend.jibli.user.IUserRepository;
 import com.backend.jibli.user.User;
+import com.backend.jibli.user.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CompanyService implements ICompanyService {
 
     private final ICompanyRepository companyRepository;
+    private final IUserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(CompanyService.class);
 
     @Autowired
-    public CompanyService(ICompanyRepository companyRepository) {
+    private NotificationService notificationService;
+
+    @Autowired
+    public CompanyService(ICompanyRepository companyRepository, IUserRepository userRepository) {
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -60,15 +69,21 @@ public class CompanyService implements ICompanyService {
         if (dto.getCompanyEmail() == null || dto.getCompanyEmail().isBlank()) {
             throw new IllegalArgumentException("Company email is required");
         }
-        if (dto.getTimeOpen() == null ) {
+        if (dto.getTimeOpen() == null) {
             throw new IllegalArgumentException("Opening time is required");
         }
-        if (dto.getTimeClose() == null ) {
+        if (dto.getTimeClose() == null) {
             throw new IllegalArgumentException("Closing time is required");
         }
 
         Company company = mapToEntity(dto);
+        company.setCompanyStatus(CompanyStatus.INACTIVE);
         Company saved = companyRepository.save(company);
+        log.info("📦 New company created: {}", saved.getCompanyName());
+
+        // Send notification to admin
+        _notifyAdminNewCompany(saved);
+
         return mapToDTO(saved);
     }
 
@@ -87,6 +102,9 @@ public class CompanyService implements ICompanyService {
 
         return companyRepository.findById(id)
                 .map(company -> {
+                    CompanyStatus oldStatus = company.getCompanyStatus();
+                    CompanyStatus newStatus = dto.getCompanyStatus();
+
                     if (dto.getCompanyName() != null) company.setCompanyName(dto.getCompanyName());
                     if (dto.getCompanyDescription() != null) company.setCompanyDescription(dto.getCompanyDescription());
                     if (dto.getCompanySector() != null) company.setCompanySector(dto.getCompanySector());
@@ -95,10 +113,20 @@ public class CompanyService implements ICompanyService {
                     if (dto.getCompanyEmail() != null) company.setCompanyEmail(dto.getCompanyEmail());
                     if (dto.getTimeOpen() != null) company.setTimeOpen(dto.getTimeOpen());
                     if (dto.getTimeClose() != null) company.setTimeClose(dto.getTimeClose());
-                    if(dto.getCompanyStatus() != null) company.setCompanyStatus(dto.getCompanyStatus());
 
+                    // Handle status change (admin only)
+                    if (newStatus != null && !newStatus.equals(oldStatus)) {
+                        company.setCompanyStatus(newStatus);
+                        log.info("📊 Company status changed: {} → {}", oldStatus, newStatus);
+                    }
 
                     Company updated = companyRepository.save(company);
+
+                    // Send notification on status change
+                    if (newStatus != null && !newStatus.equals(oldStatus)) {
+                        _notifyOwnerStatusChange(updated, newStatus);
+                    }
+
                     return mapToDTO(updated);
                 });
     }
@@ -170,7 +198,71 @@ public class CompanyService implements ICompanyService {
         return companyRepository.findAllActiveCompanies().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
 
+    /**
+     * Admin created new company → Send notification to admin
+     */
+    private void _notifyAdminNewCompany(Company company) {
+        try {
+            List<User> admins = userRepository.findAllByUserRole(UserRole.ADMIN);
+
+            for (User admin : admins) {
+                Long adminId = admin.getUserId().longValue();
+                Map<String, String> data = new HashMap<>();
+                data.put("route", "/admin/companies");
+                data.put("companyId", company.getCompanyId().toString());
+                data.put("type", "NEW_COMPANY");
+
+                String title = "🆕 Nouvelle Entreprise";
+                String body = String.format("Entreprise: %s\nPropriétaire: %s\nAdresse: %s",
+                        company.getCompanyName(),
+                        company.getUser().getFullName(),
+                        company.getCompanyAddress());
+
+                notificationService.sendNotificationToUser(adminId, title, body, data);
+                log.info("✅ Admin notified about new company");
+            }
+        } catch (Exception e) {
+            log.error("❌ Error notifying admin: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Admin changes status → Send notification to owner
+     */
+    private void _notifyOwnerStatusChange(Company company, CompanyStatus newStatus) {
+        try {
+            if (company.getUser() == null) return;
+
+            Long ownerId = company.getUser().getUserId().longValue();
+            Map<String, String> data = new HashMap<>();
+            data.put("route", "/dashboard");
+            data.put("companyId", company.getCompanyId().toString());
+            data.put("type", "COMPANY_STATUS_CHANGED");
+
+            String title = "";
+            String body = "";
+
+            if (newStatus == CompanyStatus.ACTIVE) {
+                title = "✅ Entreprise Approuvée";
+                body = String.format("Votre entreprise '%s' a été approuvée!\nVous pouvez maintenant recevoir des commandes.",
+                        company.getCompanyName());
+            } else if (newStatus == CompanyStatus.INACTIVE) {
+                title = "⏸️ Entreprise Désactivée";
+                body = String.format("Votre entreprise '%s' a été désactivée temporairement.",
+                        company.getCompanyName());
+            } else if (newStatus == CompanyStatus.BANNED) {
+                title = "🚫 Entreprise Bloquée";
+                body = String.format("Votre entreprise '%s' a été bloquée. Contactez l'admin.",
+                        company.getCompanyName());
+            }
+
+            notificationService.sendNotificationToUser(ownerId, title, body, data);
+            log.info("✅ Owner notified about status change: {}", newStatus);
+        } catch (Exception e) {
+            log.error("❌ Error notifying owner: {}", e.getMessage());
+        }
     }
 
     private CompanyDTO mapToDTO(Company company) {
@@ -200,7 +292,6 @@ public class CompanyService implements ICompanyService {
         dto.setDeliveryFee(company.getDeliveryFee());
         dto.setTimeOpen(company.getTimeOpen());
         dto.setTimeClose(company.getTimeClose());
-        // Safe null check for user
         if (company.getUser() != null) {
             dto.setUserId(company.getUser().getUserId());
         } else {
@@ -326,7 +417,6 @@ public class CompanyService implements ICompanyService {
         dto.setTimeClose(company.getTimeClose());
         dto.setUserId(company.getUser().getUserId());
 
-
         return dto;
     }
 
@@ -360,6 +450,7 @@ public class CompanyService implements ICompanyService {
 
         return dto;
     }
+
     private CategoryDTO mapCategoryToDTO(Category category) {
         if (category == null) return null;
 
@@ -381,7 +472,6 @@ public class CompanyService implements ICompanyService {
         company.setCompanyAddress(dto.getCompanyAddress());
         company.setCompanyPhone(dto.getCompanyPhone());
         company.setCompanyEmail(dto.getCompanyEmail());
-        company.setCompanyStatus(dto.getCompanyStatus());
         company.setDeliveryFee(dto.getDeliveryFee());
         company.setTimeOpen(dto.getTimeOpen());
         company.setTimeClose(dto.getTimeClose());

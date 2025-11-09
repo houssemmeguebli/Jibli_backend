@@ -2,12 +2,18 @@ package com.backend.jibli.cart;
 
 import com.backend.jibli.product.IProductRepository;
 import com.backend.jibli.product.Product;
+import com.backend.jibli.product.ProductDTO;
 import com.backend.jibli.user.IUserRepository;
 import com.backend.jibli.user.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -127,6 +133,59 @@ public class CartService implements ICartService {
                 .map(this::mapCartToDTO);
     }
 
+    @Override
+    public List<Map<String, Object>> getUserCartsGroupedByCompany(Integer userId) {
+        List<Map<String, Object>> results = cartRepository.findUserCartsGroupedByCompany(userId);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        return results.stream()
+                .map(tuple -> {
+                    // Make a mutable copy
+                    Map<String, Object> cart = new HashMap<>(tuple);
+
+                    // Parse JSON string into a list
+                    Object items = cart.get("cartItems");
+                    if (items instanceof String json) {
+                        try {
+                            List<Map<String, Object>> parsedItems =
+                                    mapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
+                            cart.put("cartItems", parsedItems);
+                        } catch (Exception e) {
+                            cart.put("cartItems", List.of());
+                        }
+                    }
+                    return cart;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteByUserUserIdAndCompanyCompanyId(Integer userId,Integer  companyId) {
+        cartRepository.deleteByUserUserIdAndCompanyCompanyId(userId,companyId);
+
+    }
+
+
+    private Map<String, Object> parseCartRow(Map<String, Object> row) {
+        Object jsonItems = row.get("cartItems");
+        if (jsonItems != null) {
+            try {
+                // Convert JSON array string into a real List<Map<String, Object>>
+                List<Map<String, Object>> parsedItems = new ObjectMapper().readValue(
+                        jsonItems.toString(),
+                        new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}
+                );
+                row.put("cartItems", parsedItems);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return row;
+    }
+
+
     // ---------------- Mapping methods ----------------
 
     private CartDTO mapCartToDTO(Cart cart) {
@@ -145,6 +204,7 @@ public class CartService implements ICartService {
                 cart.getTotalPrice()
         );
     }
+
 
     private Cart mapCartDTOToEntity(CartDTO dto) {
         Cart cart = new Cart();
@@ -179,7 +239,28 @@ public class CartService implements ICartService {
         dto.setCartId(cartItem.getCart() != null ? cartItem.getCart().getCartId() : null);
         dto.setProductId(cartItem.getProduct() != null ? cartItem.getProduct().getProductId() : null);
         dto.setQuantity(cartItem.getQuantity());
-        dto.setProduct(cartItem.getProduct());
+
+        if (cartItem.getProduct() != null) {
+            Product product = cartItem.getProduct();
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setProductId(product.getProductId());
+            productDTO.setProductName(product.getProductName());
+            productDTO.setProductDescription(product.getProductDescription());
+            productDTO.setProductPrice(product.getProductPrice());
+            productDTO.setProductFinalePrice(product.getProductFinalePrice());
+            productDTO.setAvailable(product.isAvailable());
+            productDTO.setDiscountPercentage(product.getDiscountPercentage());
+            productDTO.setCategoryId(product.getCategory() != null ? product.getCategory().getCategoryId() : null);
+            productDTO.setUserId(product.getUser() != null ? product.getUser().getUserId() : null);
+            productDTO.setCompanyId(product.getCompany() != null ? product.getCompany().getCompanyId() : null);
+            productDTO.setCreatedAt(product.getCreatedAt());
+            productDTO.setLastUpdated(product.getLastUpdated());
+            // if you have relationships like attachments, reviews, etc., you can map them here if needed
+
+            dto.setProduct(productDTO);
+        }
+
         return dto;
     }
+
 }

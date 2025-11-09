@@ -1,5 +1,6 @@
 package com.backend.jibli.order;
 
+import com.backend.jibli.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,6 +35,8 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findOrdersByDeliveryId(@Param("deliveryId") Integer deliveryId);
 
     List<Order> findOrdersByCompanyCompanyId(Integer companyId);
+    @Query("SELECT u FROM User u JOIN UserCompany uc ON u.userId = uc.user.userId WHERE uc.company.companyId = :companyId")
+    List<User> findUserByCompanyCompanyId(@Param("companyId") Integer companyId);
 
 
 }

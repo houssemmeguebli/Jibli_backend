@@ -1,5 +1,6 @@
 package com.backend.jibli.user;
 
+import com.backend.jibli.adminNotifications.BroadcastNotification;
 import com.backend.jibli.attachment.Attachment;
 import com.backend.jibli.cart.Cart;
 import com.backend.jibli.category.Category;
@@ -43,6 +44,9 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private boolean isAvailable;
+    @Column(length = 500)
+    private String fcmToken;
+
 
     // ✅ ONLY include orders, everything else is ignored
     @OneToMany(mappedBy = "user")
@@ -74,6 +78,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore  // ✅ This is the key fix - was causing infinite loop
     private List<UserCompany> userCompanies;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<BroadcastNotification> notifications;
 
     @PrePersist
     public void onCreate() {

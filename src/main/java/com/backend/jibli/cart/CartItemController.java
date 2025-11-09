@@ -47,6 +47,15 @@ public class CartItemController {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<?> createCartItemForUser(@PathVariable Integer userId, @RequestBody CartItemDTO dto) {
+        try {
+            CartItemDTO created = cartItemService.addProductToUserCart(userId, dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCartItem(@PathVariable Integer id, @RequestBody CartItemDTO dto) {

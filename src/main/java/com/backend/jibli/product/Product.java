@@ -8,10 +8,7 @@ import com.backend.jibli.company.Company;
 import com.backend.jibli.order.OrderItem;
 import com.backend.jibli.review.Review;
 import com.backend.jibli.user.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,7 +41,8 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "categoryId")
-    @JsonIgnoreProperties({"products", "attachments", "user", "company"})
+    //@JsonIgnoreProperties({"products", "attachments", "user", "company"})
+    @JsonBackReference
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -73,67 +71,58 @@ public class Product {
     @JsonIgnore  // ✅ Hide company reference to break circle
     private Company company;
 
-    @Transient
-    @JsonProperty("productFinalePrice")
+    @Column(name = "product_finale_price")
     private Double productFinalePrice;
 
     @PrePersist
     public void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        this.lastUpdated = LocalDateTime.now();
-        if (this.discountPercentage == null) {
-            this.discountPercentage = 0.0;
-        }
+        LocalDateTime now = LocalDateTime.now();
+        if (this.createdAt == null) this.createdAt = now;
+        this.lastUpdated = now;
+        normalizeDiscount();
+        calculateFinalPrice();
     }
 
     @PreUpdate
     public void onUpdate() {
         this.lastUpdated = LocalDateTime.now();
+        normalizeDiscount();
+        calculateFinalPrice();
+    }
+
+    // ------------------- Core Logic -------------------
+
+    private void normalizeDiscount() {
         if (this.discountPercentage == null) {
             this.discountPercentage = 0.0;
+        } else if (this.discountPercentage < 0) {
+            this.discountPercentage = 0.0;
+        } else if (this.discountPercentage > 100) {
+            this.discountPercentage = 100.0;
         }
     }
 
-    @PostLoad
-    @PostPersist
-    @PostUpdate
-    public void calculateFinalPrice() {
+    private void calculateFinalPrice() {
         if (this.productPrice == null) {
             this.productFinalePrice = 0.0;
-            return;
-        }
-
-        if (discountPercentage == null || discountPercentage <= 0) {
-            this.productFinalePrice = this.productPrice;
         } else {
-            double validDiscount = Math.min(discountPercentage, 100.0);
-            this.productFinalePrice = this.productPrice * (1 - validDiscount / 100);
+            double discount = (discountPercentage != null) ? discountPercentage : 0.0;
+            double validDiscount = Math.min(discount, 100.0);
+            this.productFinalePrice = productPrice * (1 - validDiscount / 100);
             this.productFinalePrice = Math.round(this.productFinalePrice * 100.0) / 100.0;
         }
     }
 
-    public Double getProductFinalePrice() {
-        calculateFinalPrice();
-        return this.productFinalePrice;
-    }
-
-    public void setDiscountPercentage(Double discountPercentage) {
-        if (discountPercentage == null) {
-            this.discountPercentage = 0.0;
-        } else if (discountPercentage < 0) {
-            this.discountPercentage = 0.0;
-        } else if (discountPercentage > 100) {
-            this.discountPercentage = 100.0;
-        } else {
-            this.discountPercentage = discountPercentage;
-        }
-        calculateFinalPrice();
-    }
+    // ------------------- Setters Override -------------------
 
     public void setProductPrice(Double productPrice) {
         this.productPrice = productPrice;
         calculateFinalPrice();
+    }
+
+    public void setDiscountPercentage(Double discountPercentage) {
+        this.discountPercentage = discountPercentage;
+        normalizeDiscount();
+        calculateFinalPrice(); //
     }
 }

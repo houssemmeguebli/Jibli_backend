@@ -3,6 +3,9 @@ package com.backend.jibli.cart;
 
 import com.backend.jibli.product.IProductRepository;
 import com.backend.jibli.product.Product;
+import com.backend.jibli.product.ProductDTO;
+import com.backend.jibli.user.IUserRepository;
+import com.backend.jibli.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +21,19 @@ public class CartItemService implements ICartItemService {
     private final ICartItemRepository cartItemRepository;
     private final ICartRepository cartRepository;
     private final IProductRepository productRepository;
+    private final IUserRepository userRepository;
 
     @Autowired
     public CartItemService(
             ICartItemRepository cartItemRepository,
             ICartRepository cartRepository,
-            IProductRepository productRepository) {
+            IProductRepository productRepository,
+            IUserRepository userRepository
+            ) {
         this.cartItemRepository = cartItemRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -48,6 +55,61 @@ public class CartItemService implements ICartItemService {
         return cartItemRepository.findById(id)
                 .map(this::mapToDTO);
     }
+    @Override
+    public CartItemDTO addProductToUserCart(Integer userId, CartItemDTO dto) {
+        if (dto.getProductId() == null || dto.getQuantity() == null || dto.getQuantity() <= 0) {
+            throw new IllegalArgumentException("ProductId and quantity are required");
+        }
+
+        // Find product
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + dto.getProductId()));
+
+        Integer companyId = product.getCompany().getCompanyId(); // Assuming each product belongs to a company
+
+        // Find existing cart for this user and company
+        Optional<Cart> optionalCart = cartRepository.findByUserUserIdAndCompanyCompanyId(userId, companyId);
+
+        Cart cart;
+        if (optionalCart.isPresent()) {
+            cart = optionalCart.get();
+        } else {
+            // Create new cart for this user & company
+            cart = new Cart();
+            cart.setUser(userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId)));
+            cart.setCompany(product.getCompany());
+            cart.setTotalPrice(0.0); // initially zero
+            cart = cartRepository.save(cart);
+        }
+
+        // Check if product is already in the cart
+        Optional<CartItem> existingItem = cartItemRepository.findByCartCartIdAndProductProductId(cart.getCartId(), product.getProductId());
+
+        CartItem cartItem;
+        if (existingItem.isPresent()) {
+            cartItem = existingItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + dto.getQuantity());
+        } else {
+            cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(dto.getQuantity());
+        }
+
+        CartItem savedItem = cartItemRepository.save(cartItem);
+
+        // Update cart total price
+        double total = cartItemRepository.findByCartCartId(cart.getCartId())
+                .stream()
+                .mapToDouble(ci -> ci.getQuantity() * ci.getProduct().getProductPrice())
+                .sum();
+        cart.setTotalPrice(total);
+        cartRepository.save(cart);
+
+        return mapToDTO(savedItem);
+    }
+
 
     @Override
     public CartItemDTO createCartItem(CartItemDTO dto) {
@@ -136,13 +198,45 @@ public class CartItemService implements ICartItemService {
         cartItemRepository.deleteByCartCartId(cartId);
     }
 
+
+
+
     private CartItemDTO mapToDTO(CartItem cartItem) {
+        ProductDTO productDTO = null;
+
+        if (cartItem.getProduct() != null) {
+            Product product = cartItem.getProduct();
+            productDTO = new ProductDTO(
+                    product.getProductId(),
+                    product.getProductName(),
+                    product.getProductDescription(),
+                    product.getProductPrice(),
+                    product.getProductFinalePrice(),
+                    product.isAvailable(),
+                    product.getDiscountPercentage(),
+                    product.getCategory() != null ? product.getCategory().getCategoryId() : null,
+                    product.getUser() != null ? product.getUser().getUserId() : null,
+                    product.getCompany() != null ? product.getCompany().getCompanyId() : null,
+                    product.getCreatedAt(),
+                    product.getLastUpdated(),
+                    product.getAttachments() != null
+                            ? product.getAttachments().stream().map(a -> a.getAttachmentId()).toList()
+                            : null,
+                    product.getReviews() != null
+                            ? product.getReviews().stream().map(r -> r.getReviewId()).toList()
+                            : null,
+                    product.getOrderItems() != null
+                            ? product.getOrderItems().stream().map(o -> o.getOrderItemId()).toList()
+                            : null
+            );
+        }
+
         return new CartItemDTO(
                 cartItem.getCartItemId(),
                 cartItem.getCart() != null ? cartItem.getCart().getCartId() : null,
                 cartItem.getProduct() != null ? cartItem.getProduct().getProductId() : null,
                 cartItem.getQuantity(),
-                cartItem.getProduct()
+                productDTO
         );
     }
 }

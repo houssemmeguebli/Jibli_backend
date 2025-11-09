@@ -27,7 +27,7 @@ public class ProductDTO {
     private List<Integer> attachmentIds;
     private List<Integer> reviewIds;
     private List<Integer> orderItemIds;
-   // private List<Map<String, Object>> attachments;
+   //private List<Map<String, Object>> attachments;
 
 
 

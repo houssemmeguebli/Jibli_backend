@@ -58,7 +58,7 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Password must be at least 6 characters");
         }
         if (dto.getUserRole() != null && !isValidRole(dto.getUserRole())) {
-            throw new IllegalArgumentException("Role must be USER or ADMIN");
+            throw new IllegalArgumentException("Role must be USER or ADMIN or Owner od Delivery");
         }
         if (dto.getUserStatus() != null && !isValidStatus(dto.getUserStatus())) {
             throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
@@ -149,10 +149,23 @@ public class UserService implements IUserService {
     }
 
     private boolean isValidRole(String role) {
-        return role != null && (role.equals("USER") || role.equals("ADMIN"));
+        if (role == null) return false;
+        try {
+            UserRole.valueOf(role);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private boolean isValidStatus(String status) {
-        return status != null && (status.equals("ACTIVE") || status.equals("INACTIVE"));
+        if (status == null) return false;
+        try {
+            UserStatus.valueOf(status);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
+
 }
